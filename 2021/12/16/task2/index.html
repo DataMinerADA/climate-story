@@ -25,7 +25,7 @@
 <meta property="og:description" content="Demographic Factors that Affect Politicians&#39; Attitudes">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-12-16T09:00:01.000Z">
-<meta property="article:modified_time" content="2021-12-17T21:10:04.981Z">
+<meta property="article:modified_time" content="2021-12-17T22:35:11.360Z">
 <meta property="article:author" content="Data Miners">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -232,13 +232,109 @@
 
 <p>​        </p>
 <p>How does one politician’s background influence his/her decisions, typically on climate related issues? We chose party affiliation, nationality, gender, ethnic group, occupation, religion, age and academic degree as possible factors to figure out how do demorgraphics affect politicians’attitude.</p>
-<h3 id="Overview-of-demorgraphics-distribution"><a href="#Overview-of-demorgraphics-distribution" class="headerlink" title="Overview of demorgraphics distribution"></a>Overview of demorgraphics distribution</h3><p>We calculated and compared the negative rate of each category that speakers in each attribute (party, nationality, gender, ethnic group, occupation, religion, highest degree and age) falls into.</p>
-<p>From the analysis above, we figured out the major categories of each attribute (e.g. Democratic Party and Republican Party are two major categories in party). Thus, we only focus on these major categories and compare the negative rate of each category. We chose party, nationality, gender and highest degree to be visualized via the following barplots.</p>
-<p>​        </p>
-<div id="echarts8766" style="width: 100%;height: 400px;margin: 0 auto"></div>
+<h3 id="Overview-of-demorgraphics-distribution"><a href="#Overview-of-demorgraphics-distribution" class="headerlink" title="Overview of demorgraphics distribution"></a>Overview of demorgraphics distribution</h3><p>We performed a preliminary analysis to calculate and compare the negative rate of each category that speakers in each attribute (party, nationality, gender, ethnic group, occupation, religion, highest degree and age) falls into.</p>
+<p><strong>Party</strong> We can see that there are about 1300 different parties. Most of the quotations come from Democratic Party (35%) and Republican Party (17%) in the U.S. Similarly, male american politicians dominate our dataset.Apart from them, Labor party( both in UK and Australia) also accounts for certain proportion.</p>
+<p><strong>Nationality</strong> It’s not surprising that American politicians are quoted most and some other English-speaking countries follow, since the dataset is mainly extracted from English articles.  These countries also have strong influence on international affairs.</p>
+<p><strong>Degree</strong> Most of the speakers (with no missing value of ‘degree’) hold a doctoral degree.It appears Well-educated people tends to be active in this field.</p>
+<p><strong>Age</strong> The majority of speakers are between the age 35~65, which is consistent with adult’s propotion in politicians.Young people may be lack of discourse power.</p>
+<p><strong>Gender</strong> Males are dominant with more than 80% proportion, which reflects a clear gender bias.</p>
+<p><strong>Ethnic Group</strong> African americans are surprisingly active in the climate activities.</p>
+<p><strong>Occupation</strong> Politicians still accounts for a large proportion of all occupations.</p>
+<p><strong>Religion</strong> Catholicism is overwhelming among all religions.</p>
+<p>According to the preliminary analysis, it seems that there is no significant attitudes difference towards climate change between different parties, countries,genders or education. However, we can tell from the figure that certain ethnic groups (religion related) tend to react negatively towards climate change issue. Also, the negative attitude seems to be more prevalent among journalists. At last,the older people get, the more they are inclined to climate denialism.<br>Since confounders will absolutely affect the conclusions that we made about groups of people, we chose a more rigorous way to explore causality —- A matched observational study : <strong>Inverse propensity score weight(IPTW)</strong>.</p>
+<h1 id="Causality-Analysis"><a href="#Causality-Analysis" class="headerlink" title="Causality Analysis"></a>Causality Analysis</h1><p>Due to limit of covariat numbers, we selected occupation,gender,age and nationality for the causality analysis. Additionally,in the attributes, top 5 occupation and top 10 nationality are selected to avoid the imbalance between the control and treatment groups.</p>
+<div id="echarts6769" style="width: 100%;height: 550px;margin: 0 auto"></div>
 <script type="text/javascript">
         // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('echarts8766'));
+        var myChart = echarts.init(document.getElementById('echarts6769'));
+
+        // 指定图表的配置项和数据
+        var option = 
+option = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      // Use axis to trigger tooltip
+      type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+    }
+  },
+  legend: {},
+  grid: [
+    { left: '7%', top: '7%', width: '38%', height: '38%' },
+    { right: '7%', top: '7%', width: '38%', height: '38%' },
+    { left: '7%', bottom: '7%', width: '38%', height: '38%' },
+    { right: '7%', bottom: '7%', width: '38%', height: '38%' }
+  ],
+  yAxis: [
+    { gridIndex: 0},
+    { gridIndex: 1},
+    { gridIndex: 2},
+    { gridIndex: 3}
+  ],
+  xAxis: [
+    { type: 'category', data: ['M', 'F', 'TF', 'NB', 'FL'], gridIndex: 0, name: 'Gender', nameLocation: 'center', nameGap: 25},
+    { type: 'category', data: ['Adult', 'Elderly'], gridIndex: 1, name: 'Age', nameLocation: 'center', nameGap: 25},
+    { type: 'category', data: ['US', 'UK', 'AU', 'CA', 'DE', 'IN', 'NZ', 'FR', 'IE', 'ZA'], gridIndex: 2, name: 'Nationality', nameLocation: 'center', nameGap: 25},
+    { type: 'category', data: ['Poli.', 'Foot.', 'Act.', 'Jour.', 'Wri.'], gridIndex: 3, name: 'Occupation', nameLocation: 'center', nameGap: 25}
+  ],
+
+  series: [
+    {
+      data: [47.43, -21.61, 0.06, -0.19, 0.34],
+      type: 'bar',
+      showBackground: true,
+      backgroundStyle: {
+        color: 'rgba(180, 180, 180, 0.2)'
+      },
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+    },
+    {
+      data: [0.0088, -0.0096],
+      type: 'bar',
+      showBackground: true,
+      backgroundStyle: {
+        color: 'rgba(180, 180, 180, 0.2)'
+      },
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+    },
+    {
+      data: [0.00021, 0.00425, 0.01264, 0.02378, 0.02692, -0.01766, 0.02342, -0.03712, -0.0056, -0.01305],
+      type: 'bar',
+      showBackground: true,
+      backgroundStyle: {
+        color: 'rgba(180, 180, 180, 0.2)'
+      },
+      xAxisIndex: 2,
+      yAxisIndex: 2,
+    },
+    {
+      data: [0.113, -0.015, 0.0097, -0.026, -0.039],
+      type: 'bar',
+      showBackground: true,
+      backgroundStyle: {
+        color: 'rgba(180, 180, 180, 0.2)'
+      },
+      xAxisIndex: 3,
+      yAxisIndex: 3,
+    }
+  ]
+};
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+</script>
+
+<p>​      </p>
+<p><strong>Occupation</strong> The score difference between the politician and non-politician is largest, which reaches to 0.113. This means being a politician tends to have more positive attitude towards the climate change issues,while being a writer has a more negative effect.<br><strong>Age</strong> Elderly may be not as positive as adults on climate change.<br><strong>Gender</strong>  Males are inclined to have more positive attitudes towards climate issue.<br><strong>Nationality</strong> People from India,South Afric and France tend to have more negative attitude, while German prove to be more positive.</p>
+<p>From the analysis above, we know the major categories of each attribute (e.g. Democratic Party and Republican Party are two major categories in party). Thus, major categories are extracted. Here are the brief comparison of four chosen categories.</p>
+<p>​      </p>
+<div id="echarts2068" style="width: 100%;height: 500px;margin: 0 auto"></div>
+<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('echarts2068'));
 
         // 指定图表的配置项和数据
         var option = option = {
@@ -257,10 +353,10 @@
     { right: '7%', bottom: '7%', width: '38%', height: '38%' }
   ],
   xAxis: [
-    { gridIndex: 0},
-    { gridIndex: 1},
-    { gridIndex: 2},
-    { gridIndex: 3}
+    { gridIndex: 0, name: 'Party', nameLocation: 'center', nameGap: 25},
+    { gridIndex: 1, name: 'Nationality', nameLocation: 'center', nameGap: 25},
+    { gridIndex: 2, name: 'Gender', nameLocation: 'center', nameGap: 25},
+    { gridIndex: 3, name: 'Degree', nameLocation: 'center', nameGap: 25}
   ],
   yAxis: [
     { type: 'category', data: ['Rep', 'Dem'], gridIndex: 0},
@@ -409,10 +505,6 @@
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
 </script>
-
-<p>​        </p>
-<p>According to the preliminary analysis, although we could draw some trivial conclusions (see the notebook), it seems that there is no significant attitudes difference towards climate change between different parties, countries, genders or education. However, since confounders will absolutely affect the conclusions that we made about groups of people, we chose  a more rigorous way to explore causality – A matched observational study : <strong>Prospensity Score Matching</strong>.</p>
-
             </div>
             <hr>
             <div>
@@ -504,7 +596,7 @@
 
   <footer class="text-center mt-5 py-3">
   <div class="footer-content">
-     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+     <a href="https://dlab.epfl.ch/teaching/fall2021/cs401/" target="_blank" rel="nofollow noopener"><span>ADA</span></a> <i class="iconfont icon-exp-fill"></i> <a href="https://www.epfl.ch/en/" target="_blank" rel="nofollow noopener"><span>EPFL</span></a> 
   </div>
   
 
